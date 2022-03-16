@@ -1,9 +1,11 @@
 import tkinter as tk
 import ctypes
+import os
 import sys
 import pystray
 from PIL import Image, ImageDraw
 import pidfile
+from pathlib import Path
 
 
 SLEEP_ENABLED = True
@@ -112,10 +114,16 @@ def create_root_gui():
     return root
 
 def main():
+
+    # determine if the application is a frozen `.exe` (e.g. pyinstaller --onefile) 
+    if getattr(sys, 'frozen', False):
+        application_path = os.path.dirname(sys.executable)
+    # or a script file (e.g. `.py` / `.pyw`)
+    elif __file__:
+        application_path = os.path.dirname(__file__)
+
     try:
-        from pathlib import Path
-        script_path = Path(__file__).parent
-        pid_file = "".join([str(script_path), r"\pidfile"])
+        pid_file = "".join([str(application_path), r"\pidfile"])
 
         with pidfile.PIDFile(pid_file):
             global ICON_ROOT, ROOT
@@ -128,9 +136,8 @@ def main():
             # run program
             ROOT.mainloop()
     except pidfile.AlreadyRunningError:
-        print('Already running.')
-
-    
+        print("Already running, exiting.")
+        return
 
 if __name__ == "__main__":
     main()
