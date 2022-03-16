@@ -112,9 +112,12 @@ def create_root_gui():
     return root
 
 def main():
-
     try:
-        with pidfile.PIDFile():
+        from pathlib import Path
+        script_path = Path(__file__).parent
+        pid_file = "".join([str(script_path), r"\pidfile"])
+
+        with pidfile.PIDFile(pid_file):
             global ICON_ROOT, ROOT
             ICON_ROOT = create_icon()
             ICON_ROOT.run_detached()
